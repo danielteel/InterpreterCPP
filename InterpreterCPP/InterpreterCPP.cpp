@@ -14,7 +14,7 @@
 //Define our functions we are going to import into the interpreter
 OpObj* printFn( OpObj*(*popFn) () ){
 	StringObj* str = static_cast<StringObj*>(popFn());
-	//cout << "printFn: " << *str->value << "\n";
+	cout << "printFn: " << *str->value << "\n";
 	delete str;
 	return new BoolObj(false, false);
 }
@@ -86,33 +86,31 @@ optional<double> runCode(vector<ExternalDef>externs, const char* code, bool* err
 }
 
 int main(){
-	for (int i = 0; i < 100000000; i++) {
-		auto authorName = StringObj("Dan Teel", true);
-		auto publicationYear = NumberObj(2020, true);
-		auto isInterpreted = BoolObj(true, true);
-		auto numberOfTestsPassed = NumberObj(0, false);
+	auto authorName = StringObj("Dan Teel", true);
+	auto publicationYear = NumberObj(2020, true);
+	auto isInterpreted = BoolObj(true, true);
+	auto numberOfTestsPassed = NumberObj(0, false);
 
-		auto externList = {
-					ExternalDef("print", IdentityType::Bool, { IdentityType::String }, &printFn),
-					ExternalDef("time", IdentityType::Double, {}, &timeFn),
-					ExternalDef("not", IdentityType::Bool, { IdentityType::Bool }, &notFn),
-					ExternalDef("neg", IdentityType::Double, { IdentityType::Double }, &negFn),
+	auto externList = {
+				ExternalDef("print", IdentityType::Bool, { IdentityType::String }, &printFn),
+				ExternalDef("time", IdentityType::Double, {}, &timeFn),
+				ExternalDef("not", IdentityType::Bool, { IdentityType::Bool }, &notFn),
+				ExternalDef("neg", IdentityType::Double, { IdentityType::Double }, &negFn),
 
-					ExternalDef("authorName", IdentityType::String, &authorName),
-					ExternalDef("publicationYear", IdentityType::Double, &publicationYear),
-					ExternalDef("isInterpreted", IdentityType::Bool, &isInterpreted),
-					ExternalDef("numberOfTestsPassed", IdentityType::Double, &numberOfTestsPassed),
-		};
+				ExternalDef("authorName", IdentityType::String, &authorName),
+				ExternalDef("publicationYear", IdentityType::Double, &publicationYear),
+				ExternalDef("isInterpreted", IdentityType::Bool, &isInterpreted),
+				ExternalDef("numberOfTestsPassed", IdentityType::Double, &numberOfTestsPassed),
+	};
 
-		string errorMsg;
-		bool errorOccured = false;
-		optional<double> value = runCode(externList, testCode, &errorOccured, &errorMsg);
+	string errorMsg;
+	bool errorOccured = false;
+	optional<double> value = runCode(externList, testCode, &errorOccured, &errorMsg);
 
-		if (value == nullopt) {
-			cout << errorMsg << "\n";
-		} else {
-			cout << *value << "\n";
-		}
+	if (value == nullopt) {
+		cout << errorMsg << "\n";
+	} else {
+		cout << *value << "\n";
 	}
 }
  
