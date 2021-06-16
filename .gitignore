@@ -1,0 +1,7 @@
+/Release/
+/Debug/
+/InterpreterCPP/Release
+/InterpreterCPP/Debug
+/.vs/
+*.user
+*.chartproject
