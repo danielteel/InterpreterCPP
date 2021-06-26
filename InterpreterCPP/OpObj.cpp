@@ -183,12 +183,36 @@ bool NumberObj::greaterOrEqualsThan(OpObj* obj) {
 	return this->greaterThan(obj) || this->equalTo(obj);
 }
 
+
 bool NumberObj::smallerThan(OpObj* obj) {
-	return !this->greaterOrEqualsThan(obj);
+	if (!obj) throw "tried to compare object to null pointer";
+
+
+	NumberObj* numObj = nullptr;
+	if (obj->objType == OpObjType::Register) {
+		if (obj->valueType == OpObjType::Number) {
+			numObj = &static_cast<RegisterObj*>(obj)->numObj;
+		} else if (obj->valueType == OpObjType::Null) {
+			return false;
+		}
+	}
+	if (obj->objType == OpObjType::Number) {
+		numObj = static_cast<NumberObj*>(obj);
+	}
+	if (obj->objType == OpObjType::Null) {
+		return false;
+	}
+	if (numObj) {
+		if (this->value == nullopt || numObj->value == nullopt) {
+			return false;
+		}
+		return *this->value < *numObj->value;
+	}
+	throw "tried to compare object to incompatible object";
 }
 
 bool NumberObj::smallerOrEqualsThan(OpObj* obj) {
-	return !this->greaterThan(obj);
+	return this->smallerThan(obj) || this->equalTo(obj);
 }
 
 StringObj::StringObj() : OpObj(OpObjType::String, OpObjType::String, false) {
