@@ -1,3 +1,4 @@
+#include "pch.h"
 #include "ExternalDef.h"
 
 ExternalDef::ExternalDef(string name, IdentityType type, OpObj* opObj) {

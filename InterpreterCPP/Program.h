@@ -4,6 +4,7 @@
 #include "OpObj.h"
 #include "OpCode.h"
 #include "ExternalDef.h"
+using namespace std;
 
 enum class CodeState {
 	building,

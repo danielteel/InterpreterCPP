@@ -1,3 +1,4 @@
+#include "pch.h"
 #include "OpCode.h"
 #include "Parser.h"
 #include <algorithm>
@@ -196,7 +197,7 @@ void Parser::matchType(IdentityType whatToTest, IdentityType typeItShouldBe, boo
 }
 
 bool Parser::typesDontMatch(IdentityType a, IdentityType b, bool strict = false) {
-	return !(a==b || (a==IdentityType::Null || b==IdentityType::Null && strict==false));
+	return !(a==b || ((a==IdentityType::Null || b==IdentityType::Null) && strict==false));
 }
 
 void Parser::assertType(IdentityType whatItIs, IdentityType whatItShouldBe, bool strict = false) {
@@ -1198,6 +1199,7 @@ void Parser::doAssignment(bool wantsDelim = true) {
 	this->match(InterpreterTokenType::Ident);
 	ScopeObj* identObj = this->getIdentity(varName);
 	if (!identObj) this->throwError("tried to do assignment to undefined '" + varName + "'");
+
 	this->match(InterpreterTokenType::Assignment);
 	this->assertType(this->doExpression(), identObj->type);
 

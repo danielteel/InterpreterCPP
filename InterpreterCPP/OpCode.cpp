@@ -1,3 +1,4 @@
+#include "pch.h"
 #include "OpCode.h"
 
 OpCode::OpCode(OpCodeType type) {

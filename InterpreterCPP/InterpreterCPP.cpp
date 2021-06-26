@@ -40,10 +40,30 @@ OpObj* negFn(OpObj*(*popFn) ()){
 	return new NumberObj(0 - *value, false);
 }
 
-optional<double> runCode(vector<ExternalDef>externs, const char* code, bool* errorOccured, string* errorOut) {
+optional<string> checkCompile(vector<ExternalDef>externs, const char* code) {
 	try {
 		Tokenizer tokenizer;
-		optional<double> returnValue = nullopt;
+		try {
+			tokenizer.tokenize(code);
+			Parser parser(tokenizer.tokens);
+			try {
+				parser.parse(externs, IdentityType::String);
+			} catch (char e) {
+				return "Parser error: " + parser.errorMsg;
+			}
+		} catch (char e) {
+			return "Tokenizer error: " + tokenizer.errorMsg;
+		}
+	} catch (...) {
+		return "Unknown error";
+	}
+	return nullopt;
+}
+
+optional<string> runCode(vector<ExternalDef>externs, const char* code, bool* errorOccured, string* errorOut) {
+	try {
+		Tokenizer tokenizer;
+		optional<string> returnValue = nullopt;
 
 		if (errorOccured) *errorOccured = false;
 
@@ -51,12 +71,12 @@ optional<double> runCode(vector<ExternalDef>externs, const char* code, bool* err
 			tokenizer.tokenize(code);
 			Parser parser(tokenizer.tokens);
 			try {
-				parser.parse(externs, IdentityType::Double);
+				parser.parse(externs, IdentityType::String);
 
 				OpObj* retObj = parser.program.execute(externs);
 				if (retObj) {
-					if (retObj->objType == OpObjType::Number) {
-						returnValue = static_cast<NumberObj*>(retObj)->value;
+					if (retObj->objType == OpObjType::String) {
+						returnValue = static_cast<StringObj*>(retObj)->value;
 					}
 					delete retObj;
 				}
@@ -92,20 +112,21 @@ int main(){
 	auto numberOfTestsPassed = NumberObj(0, false);
 
 	auto externList = {
-				ExternalDef("print", IdentityType::Bool, { IdentityType::String }, &printFn),
-				ExternalDef("time", IdentityType::Double, {}, &timeFn),
-				ExternalDef("not", IdentityType::Bool, { IdentityType::Bool }, &notFn),
-				ExternalDef("neg", IdentityType::Double, { IdentityType::Double }, &negFn),
+		ExternalDef("print", IdentityType::Bool, { IdentityType::String }, &printFn),
+		ExternalDef("time", IdentityType::Double, {}, &timeFn),
+		ExternalDef("not", IdentityType::Bool, { IdentityType::Bool }, &notFn),
+		ExternalDef("neg", IdentityType::Double, { IdentityType::Double }, &negFn),
 
-				ExternalDef("authorName", IdentityType::String, &authorName),
-				ExternalDef("publicationYear", IdentityType::Double, &publicationYear),
-				ExternalDef("isInterpreted", IdentityType::Bool, &isInterpreted),
-				ExternalDef("numberOfTestsPassed", IdentityType::Double, &numberOfTestsPassed),
+		ExternalDef("authorName", IdentityType::String, &authorName),
+		ExternalDef("publicationYear", IdentityType::Double, &publicationYear),
+		ExternalDef("isInterpreted", IdentityType::Bool, &isInterpreted),
+		ExternalDef("numberOfTestsPassed", IdentityType::Double, &numberOfTestsPassed),
 	};
 
+	bool errorOccured;
 	string errorMsg;
-	bool errorOccured = false;
-	optional<double> value = runCode(externList, testCode, &errorOccured, &errorMsg);
+		
+	optional<string> value = runCode(externList, testCode, &errorOccured, &errorMsg);
 
 	if (value == nullopt) {
 		cout << errorMsg << "\n";
